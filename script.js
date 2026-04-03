@@ -104,10 +104,19 @@ function openEnvelope() {
         document.getElementById('landing').classList.remove('active');
         document.getElementById('message-screen').classList.add('active');
 
-        // 🎥 PLAY VIDEO + 🎵 MUSIC TOGETHER
+        var video = document.getElementById("ourVideo");
+
+        video.load();
+        video.muted = true;
+        video.play().catch(function(e){
+            console.log("Mobile autoplay blocked");
+        });
+
         playVideoFirst();
+
     }, 800);
 }
+
 
 // ===== 🎥 PLAY VIDEO + 🎵 MUSIC AUTOMATICALLY =====
 function playVideoFirst() {
