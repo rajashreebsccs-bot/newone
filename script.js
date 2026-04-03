@@ -138,12 +138,12 @@ function playVideoFirst() {
     bgMusic.volume = 0.5;
 
     // Try to play both together
-    video.play().then(function() {
+    function tryplayVideo() {
+      video.play().then(function() {
         console.log('Video playing!');
 
         // Now start music
         bgMusic.play().then(function() {
-            console.log('Music playing!');
             musicPlaying = true;
             document.getElementById('musicBtn').textContent = '🔊';
         }).catch(function(err) {
@@ -157,6 +157,25 @@ function playVideoFirst() {
         console.log('Video autoplay failed:', err);
         showTapToPlay();
     });
+    }
+    // Check if video can play
+    if (video.readyState >= 3) {
+        // Already loaded enough
+        tryPlayVideo();
+    } else {
+        // Wait for enough data to load
+        video.addEventListener('canplay', function onCanPlay() {
+            video.removeEventListener('canplay', onCanPlay);
+            tryPlayVideo();
+        });
+    }
+
+    // Safety: If nothing happens in 8 seconds, show tap to play
+    setTimeout(function() {
+        if (video.paused && !document.getElementById('tapOverlay')) {
+            showTapToPlay();
+        }
+    }, 8000);
 
     // When video ends → show the letter
     video.addEventListener('ended', function() {
