@@ -119,26 +119,93 @@ function openEnvelope() {
 
 
 // ===== 🎥 PLAY VIDEO + 🎵 MUSIC AUTOMATICALLY =====
+// ===== 🎥 PLAY VIDEO + 🎵 MUSIC =====
 function playVideoFirst() {
     var video = document.getElementById('ourVideo');
     var bgMusic = document.getElementById('bgMusic');
-    var videoSection = document.querySelector('.video-section');
+    var loader = document.getElementById('videoLoader');
+    var videoArea = document.getElementById('videoArea');
 
-    // Hide letter and other stuff — show only video
-    var title = document.querySelector('.title');
-    var letterBox = document.querySelector('.letter-box');
-    var surpriseBtn = document.querySelector('.surprise-btn');
+    var title = document.getElementById('mainTitle');
+    var letterBox = document.getElementById('letterBox');
+    var surpriseBtn = document.getElementById('surpriseBtn');
 
-    if (title) title.style.display = 'none';
-    if (letterBox) letterBox.style.display = 'none';
-    if (surpriseBtn) surpriseBtn.style.display = 'none';
+    if (videoArea) videoArea.style.display = 'block';
 
-    // Show video section with fade in
-    if (videoSection) {
-        videoSection.style.opacity = '0';
-        videoSection.style.display = 'block';
-        videoSection.style.animation = 'fadeInUp 1s ease forwards';
+    // IMPORTANT FOR PHONES: Must be muted + playsinline for autoplay
+    video.muted = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    video.setAttribute('muted', '');
+    video.preload = 'auto';
+
+    bgMusic.volume = 0.5;
+
+    // Force load the video first
+    video.load();
+
+    function startPlaying() {
+        if (loader) loader.classList.add('hidden');
+
+        video.play().then(function () {
+            console.log('Video playing on phone!');
+
+            bgMusic.play().then(function () {
+                musicPlaying = true;
+                document.getElementById('musicBtn').textContent = '🔊';
+            }).catch(function (err) {
+                console.log('Music blocked:', err);
+            });
+
+        }).catch(function (err) {
+            console.log('Video failed, skipping to letter:', err);
+            // If video cant play on this phone, skip to letter
+            showLetterAfterVideo();
+        });
     }
+
+    // Wait for enough data to play smoothly
+    video.addEventListener('canplaythrough', function onReady() {
+        video.removeEventListener('canplaythrough', onReady);
+        startPlaying();
+    });
+
+    // Also try on canplay (less data needed)
+    video.addEventListener('canplay', function onCanPlay() {
+        video.removeEventListener('canplay', onCanPlay);
+        // Give it 1 extra second to buffer
+        setTimeout(function () {
+            if (video.paused) {
+                startPlaying();
+            }
+        }, 1000);
+    });
+
+    // Safety: If nothing happens in 6 seconds, skip to letter
+    setTimeout(function () {
+        if (video.paused || video.currentTime < 1) {
+            console.log('Video stuck, skipping to letter...');
+            if (loader) loader.classList.add('hidden');
+            showLetterAfterVideo();
+        }
+    }, 6000);
+
+    // When video ends, show letter
+    video.addEventListener('ended', function () {
+        showLetterAfterVideo();
+    });
+
+    // Handle stalling (buffering mid-play)
+    video.addEventListener('stalled', function () {
+        console.log('Video stalled, waiting...');
+        setTimeout(function () {
+            if (video.paused || video.readyState < 3) {
+                showLetterAfterVideo();
+            }
+        }, 3000);
+    });
+                           }
 
     // Video is muted (no sound in video)
     video.muted = true;
