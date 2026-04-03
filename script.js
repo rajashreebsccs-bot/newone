@@ -1,467 +1,551 @@
-// ===== GLOBAL VARIABLES =====
-var musicPlaying = false;
-var formURL = 'https://docs.google.com/forms/d/e/1FAIpQLSftqErZcP9iB0fenqyA_cdkbXwhnbIIcg09gkivDRcz_ef1zg/formResponse';
-var thanksEntryId = 'entry.1883305769';
-var messageEntryId = 'entry.1883305769';
+// ===== 🔑 YOUR GOOGLE FORM CREDENTIALS =====
+var GOOGLE_FORM_ID = '1FAIpQLScA4-5MHgDq6t1Qgymr4XXqrplKXTqc6Pz1JHlF0ZiT_sQm4w';
+var GOOGLE_ENTRY_ID = 'entry.629896746';
+var GOOGLE_MESSAGE_ENTRY_ID = 'entry.934161882';
 
-// ===== :love_letter: OPEN ENVELOPE =====
+// ===== 🎵 MUSIC VARIABLE =====
+var musicPlaying = false;
+
+// ===== 🔍 FIND ENTRY IDs - DELETE AFTER FINDING! =====
+function findEntryIds() {
+    var formUrl = 'https://docs.google.com/forms/d/e/' + GOOGLE_FORM_ID + '/viewform';
+
+    fetch(formUrl)
+        .then(function(response) { return response.text(); })
+        .then(function(html) {
+            var matches = html.match(/entry\.\d+/g);
+            if (matches) {
+                var uniqueIds = [];
+                for (var i = 0; i < matches.length; i++) {
+                    if (uniqueIds.indexOf(matches[i]) === -1) {
+                        uniqueIds.push(matches[i]);
+                    }
+                }
+                alert('Found Entry IDs:\n\n' + uniqueIds.join('\n') + '\n\nFirst = Action\nSecond = Message');
+            } else {
+                alert('Could not find entry IDs.');
+            }
+        })
+        .catch(function(err) {
+            alert('Error: ' + err.message);
+        });
+}
+
+// ===== 🎵 MUSIC CONTROLS =====
+function startMusic() {
+    var music = document.getElementById('bgMusic');
+    if (!music) return;
+
+    music.volume = 0.5;
+    music.play().then(function() {
+        musicPlaying = true;
+        document.getElementById('musicBtn').textContent = '🔊';
+    }).catch(function(err) {
+        console.log('Music autoplay blocked:', err);
+        musicPlaying = false;
+        document.getElementById('musicBtn').textContent = '🔇';
+    });
+}
+
+function toggleMusic() {
+    var music = document.getElementById('bgMusic');
+    var btn = document.getElementById('musicBtn');
+    if (!music || !btn) return;
+
+    if (musicPlaying) {
+        music.pause();
+        musicPlaying = false;
+        btn.textContent = '🔇';
+    } else {
+        music.volume = 0.5;
+        music.play().then(function() {
+            musicPlaying = true;
+            btn.textContent = '🔊';
+        }).catch(function(err) {
+            console.log('Cannot play music:', err);
+        });
+    }
+}
+
+// ===== SEND NOTIFICATION VIA GOOGLE FORM =====
+function notifyMe(actionType) {
+    var formUrl = 'https://docs.google.com/forms/d/e/' + GOOGLE_FORM_ID + '/formResponse';
+
+    var now = new Date();
+    var time = now.toLocaleString('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+    });
+
+    var fullMessage = actionType + ' | Time: ' + time;
+
+    var formData = new FormData();
+    formData.append(GOOGLE_ENTRY_ID, fullMessage);
+
+    fetch(formUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData
+    }).then(function() {
+        console.log('Sent: ' + fullMessage);
+    }).catch(function(err) {
+        console.log('Error:', err);
+    });
+}
+
+// ===== OPEN ENVELOPE =====
 function openEnvelope() {
-    var envelope = document.querySelector('.envelope');
+    var envelope = document.getElementById('envelope');
     envelope.classList.add('opened');
 
-    setTimeout(function () {
-        document.getElementById('screen1').classList.remove('active');
-        document.getElementById('screen2').classList.add('active');
-        startFloatingHearts();
+    notifyMe('💌 Opened the Envelope');
+
+    setTimeout(function() {
+        document.getElementById('landing').classList.remove('active');
+        document.getElementById('message-screen').classList.add('active');
+
+        // 🎥 PLAY VIDEO + 🎵 MUSIC TOGETHER
         playVideoFirst();
     }, 800);
 }
 
-// ===== :movie_camera: PLAY VIDEO + :musical_note: MUSIC =====
+// ===== 🎥 PLAY VIDEO + 🎵 MUSIC AUTOMATICALLY =====
 function playVideoFirst() {
     var video = document.getElementById('ourVideo');
     var bgMusic = document.getElementById('bgMusic');
-    var loader = document.getElementById('videoLoader');
-    var videoArea = document.getElementById('videoArea');
+    var videoSection = document.querySelector('.video-section');
 
-    if (videoArea) videoArea.style.display = 'block';
+    // Hide letter and other stuff — show only video
+    var title = document.querySelector('.title');
+    var letterBox = document.querySelector('.letter-box');
+    var surpriseBtn = document.querySelector('.surprise-btn');
 
-    // Phone-specific: MUST be muted + playsinline for autoplay
+    if (title) title.style.display = 'none';
+    if (letterBox) letterBox.style.display = 'none';
+    if (surpriseBtn) surpriseBtn.style.display = 'none';
+
+    // Show video section with fade in
+    if (videoSection) {
+        videoSection.style.opacity = '0';
+        videoSection.style.display = 'block';
+        videoSection.style.animation = 'fadeInUp 1s ease forwards';
+    }
+
+    // Video is muted (no sound in video)
     video.muted = true;
-    video.playsInline = true;
-    video.setAttribute('playsinline', '');
-    video.setAttribute('webkit-playsinline', '');
-    video.setAttribute('muted', '');
-    video.preload = 'auto';
 
+    // 🎵 Set background music volume
     bgMusic.volume = 0.5;
 
-    // Force load video first
-    video.load();
+    // Try to play both together
+    video.play().then(function() {
+        console.log('Video playing!');
 
-    // Wait 2 seconds for phone to buffer, then try playing
-    setTimeout(function () {
-        if (loader) loader.classList.add('hidden');
-
-        video.play().then(function () {
-            console.log('Video playing!');
-
-            // Start background music
-            bgMusic.play().then(function () {
-                musicPlaying = true;
-                document.getElementById('musicBtn').textContent = ':loud_sound:';
-            }).catch(function (err) {
-                console.log('Music needs user tap:', err);
-            });
-
-        }).catch(function (err) {
-            console.log('Autoplay blocked, showing tap button:', err);
-            showTapButton();
+        // Now start music
+        bgMusic.play().then(function() {
+            console.log('Music playing!');
+            musicPlaying = true;
+            document.getElementById('musicBtn').textContent = '🔊';
+        }).catch(function(err) {
+            console.log('Music blocked:', err);
+            showTapForMusic();
         });
-    }, 2000);
 
-    // When video ends, show the letter
-    video.addEventListener('ended', function () {
+        notifyMe('🎥 Watching Your Video!');
+
+    }).catch(function(err) {
+        console.log('Video autoplay failed:', err);
+        showTapToPlay();
+    });
+
+    // When video ends → show the letter
+    video.addEventListener('ended', function() {
         showLetterAfterVideo();
     });
-
-    // If video stuck for 12 seconds, skip to letter
-    setTimeout(function () {
-        if (video.paused || video.currentTime < 2) {
-            console.log('Video stuck, skipping to letter...');
-            if (loader && !loader.classList.contains('hidden')) {
-                loader.classList.add('hidden');
-            }
-            showLetterAfterVideo();
-        }
-    }, 12000);
-
-    // Handle stalling (buffering mid-play on phone)
-    video.addEventListener('stalled', function () {
-        console.log('Video stalled...');
-        setTimeout(function () {
-            if (video.paused || video.readyState < 3) {
-                showLetterAfterVideo();
-            }
-        }, 4000);
-    });
-
-    // Handle waiting (buffering)
-    video.addEventListener('waiting', function () {
-        console.log('Video buffering...');
-    });
 }
 
-// ===== :arrow_forward: TAP TO PLAY BUTTON (phones that block autoplay) =====
-function showTapButton() {
-    var videoArea = document.getElementById('videoArea');
+// ===== TAP TO PLAY (if autoplay blocked on phone) =====
+function showTapToPlay() {
     var video = document.getElementById('ourVideo');
     var bgMusic = document.getElementById('bgMusic');
+    var videoWrapper = document.querySelector('.video-wrapper');
 
-    // Don't add multiple tap buttons
-    if (document.getElementById('tapPlayBtn')) return;
+    // Create tap overlay
+    var overlay = document.createElement('div');
+    overlay.id = 'tapOverlay';
+    overlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;border-radius:20px;';
 
-    var tapBtn = document.createElement('button');
-    tapBtn.id = 'tapPlayBtn';
-    tapBtn.textContent = ':arrow_forward: Tap to Play :sparkling_heart:';
-    tapBtn.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;background:linear-gradient(135deg,#FF6B9D,#C44569);color:white;border:none;padding:15px 30px;border-radius:50px;font-size:1.1rem;font-family:Poppins,sans-serif;cursor:pointer;animation:pulse 1.5s infinite;box-shadow:0 10px 30px rgba(255,107,157,0.5);';
+    var playContent = document.createElement('div');
+    playContent.style.cssText = 'text-align:center;';
 
-    videoArea.style.position = 'relative';
-    videoArea.appendChild(tapBtn);
+    var playIcon = document.createElement('p');
+    playIcon.textContent = '▶';
+    playIcon.style.cssText = 'font-size:4rem;color:white;';
 
-    tapBtn.addEventListener('click', function () {
-        tapBtn.remove();
+    var playText = document.createElement('p');
+    playText.textContent = 'Tap to play 💖';
+    playText.style.cssText = 'color:white;font-size:1.2rem;margin-top:10px;font-family:Poppins,sans-serif;';
 
+    playContent.appendChild(playIcon);
+    playContent.appendChild(playText);
+    overlay.appendChild(playContent);
+
+    videoWrapper.style.position = 'relative';
+    videoWrapper.appendChild(overlay);
+
+    overlay.addEventListener('click', function() {
+        overlay.remove();
+
+        // Play video (muted — no sound in video)
         video.muted = true;
-        video.play().then(function () {
-            console.log('Video playing after tap!');
+        video.play();
 
-            bgMusic.play().then(function () {
-                musicPlaying = true;
-                document.getElementById('musicBtn').textContent = ':loud_sound:';
-            }).catch(function () {
-                console.log('Music still blocked');
-            });
-
-        }).catch(function () {
-            console.log('Video failed even after tap, showing letter');
-            showLetterAfterVideo();
+        // 🎵 Play background music WITH sound
+        bgMusic.volume = 0.5;
+        bgMusic.play().then(function() {
+            musicPlaying = true;
+            document.getElementById('musicBtn').textContent = '🔊';
+        }).catch(function(err) {
+            console.log('Music failed:', err);
         });
+
+        notifyMe('🎥 Watching Your Video!');
     });
 }
 
-// ===== :memo: SHOW LETTER AFTER VIDEO =====
-function showLetterAfterVideo() {
-    var videoArea = document.getElementById('videoArea');
-    var title = document.getElementById('mainTitle');
-    var letterBox = document.getElementById('letterBox');
-    var surpriseBtn = document.getElementById('surpriseBtn');
+// ===== TAP FOR MUSIC (if video plays but music doesn't) =====
+function showTapForMusic() {
+    var musicBtn = document.getElementById('musicBtn');
 
-    // Fade out video
-    if (videoArea) {
-        videoArea.style.transition = 'opacity 1s ease';
-        videoArea.style.opacity = '0';
-        setTimeout(function () {
-            videoArea.style.display = 'none';
+    // Make music button glow
+    musicBtn.style.animation = 'musicAlert 0.5s ease-in-out infinite alternate';
+    musicBtn.textContent = '🔇';
 
-            // Stop video to free memory on phone
-            var video = document.getElementById('ourVideo');
-            if (video) {
-                video.pause();
-                video.src = '';
-            }
-        }, 1000);
-    }
+    // Add hint
+    var hint = document.createElement('div');
+    hint.id = 'musicHint';
+    hint.textContent = '🎵 Tap for music!';
+    hint.style.cssText = 'position:fixed;bottom:75px;right:10px;z-index:9999;background:rgba(255,107,157,0.9);color:white;padding:8px 15px;border-radius:20px;font-size:0.85rem;font-family:Poppins,sans-serif;';
+    document.body.appendChild(hint);
 
-    // Show title
-    setTimeout(function () {
-        if (title) {
-            title.style.display = 'block';
-            title.style.opacity = '0';
-            title.style.animation = 'gradientShift 4s ease infinite, fadeInDown 1s ease 0.3s forwards';
+    // Remove hint after 3 seconds
+    setTimeout(function() {
+        var existingHint = document.getElementById('musicHint');
+        if (existingHint) {
+            existingHint.remove();
         }
-    }, 500);
-
-    // Show letter box
-    setTimeout(function () {
-        if (letterBox) {
-            letterBox.style.display = 'block';
-            letterBox.style.opacity = '0';
-            letterBox.style.animation = 'fadeInUp 1s ease 0.5s forwards';
-
-            // Reset text animations
-            var greeting = document.querySelector('.greeting');
-            if (greeting) greeting.style.animation = 'fadeInUp 0.8s ease 1s forwards';
-
-            document.getElementById('text1').style.animation = 'fadeInUp 0.8s ease 1.5s forwards';
-            document.getElementById('text2').style.animation = 'fadeInUp 0.8s ease 2.2s forwards';
-            document.getElementById('text3').style.animation = 'fadeInUp 0.8s ease 2.9s forwards';
-            document.getElementById('text4').style.animation = 'fadeInUp 0.8s ease 3.6s forwards';
-            document.getElementById('text5').style.animation = 'fadeInUp 0.8s ease 4.3s forwards';
-
-            var signature = document.querySelector('.signature');
-            if (signature) signature.style.animation = 'fadeInUp 0.8s ease 5s forwards';
-        }
-    }, 1000);
-
-    // Show surprise button
-    setTimeout(function () {
-        if (surpriseBtn) {
-            surpriseBtn.style.display = 'inline-block';
-            surpriseBtn.style.opacity = '0';
-            surpriseBtn.style.animation = 'fadeInUp 0.8s ease 5.5s forwards';
-        }
-    }, 1200);
-
-    // Start music if not already playing
-    var bgMusic = document.getElementById('bgMusic');
-    if (bgMusic && bgMusic.paused) {
-        bgMusic.play().then(function () {
-            musicPlaying = true;
-            document.getElementById('musicBtn').textContent = ':loud_sound:';
-        }).catch(function () {
-            console.log('Music needs user interaction');
-        });
-    }
-}
-
-// ===== :sparkling_heart::blue_heart: FLOATING HEARTS + SENTIMENT EMOJIS =====
-function startFloatingHearts() {
-    var hearts = [':heart:', ':blue_heart:', ':heart:', ':blue_heart:', ':heart:', ':blue_heart:', ':sparkling_heart:', ':heartpulse:'];
-    var sentiments = [':pleading_face:', ':two_hearts:', ':sparkles:', ':butterfly:', ':sparkling_heart:', ':kissing_heart:', ':heart_hands:', ':gift_heart:', ':rose:', ':dizzy:', ':smiling_face_with_3_hearts:', ':heartbeat:'];
-
-    // Big floating hearts
-    setInterval(function () {
-        var heart = document.createElement('div');
-        heart.className = 'heart';
-        heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-        heart.style.left = Math.random() * 100 + 'vw';
-        heart.style.fontSize = (Math.random() * 2.5 + 1.5) + 'rem';
-        heart.style.animationDuration = (Math.random() * 5 + 6) + 's';
-        heart.style.opacity = (Math.random() * 0.4 + 0.6).toString();
-        document.body.appendChild(heart);
-        setTimeout(function () { heart.remove(); }, 12000);
-    }, 800);
-
-    // Sentiment emojis
-    setInterval(function () {
-        var emoji = document.createElement('div');
-        emoji.className = 'sentiment-emoji';
-        emoji.textContent = sentiments[Math.floor(Math.random() * sentiments.length)];
-        emoji.style.left = Math.random() * 100 + 'vw';
-        emoji.style.fontSize = (Math.random() * 1.2 + 0.8) + 'rem';
-        emoji.style.animationDuration = (Math.random() * 6 + 7) + 's';
-        emoji.style.opacity = (Math.random() * 0.3 + 0.5).toString();
-        document.body.appendChild(emoji);
-        setTimeout(function () { emoji.remove(); }, 14000);
-    }, 1200);
-}
-
-// ===== :birthday: SHOW SURPRISE (CAKE) =====
-function showSurprise() {
-    document.getElementById('surpriseBtn').style.display = 'none';
-    document.getElementById('cakeSection').style.display = 'block';
-    document.getElementById('cakeSection').style.animation = 'fadeInUp 0.8s ease forwards';
-}
-
-/ ===== :wind_blowing_face: BLOW CANDLES =====
-function blowCandles() {
-    for (var i = 1; i <= 5; i++) {
-        (function (index) {
-            setTimeout(function () {
-                document.getElementById('flame' + index).classList.add('blown');
-            }, index * 200);
-        })(i);
-    }
-
-    setTimeout(function () {
-        document.querySelector('.wish-text').textContent = ':tada: Happy Birthday Ammu! :tada:';
-        document.querySelector('.blow-btn').style.display = 'none';
-        startConfetti();
-
-        setTimeout(function () {
-            document.getElementById('cakeSection').style.display = 'none';
-            document.getElementById('forgiveSection').style.display = 'block';
-            document.getElementById('forgiveSection').style.animation = 'fadeInUp 0.8s ease forwards';
-        }, 2500);
-    }, 1500);
-}
-
-// ===== :triumph: NO BUTTON RUNS AWAY =====
-function moveNoBtn() {
-    var btn = document.getElementById('noBtn');
-    var maxX = window.innerWidth - btn.offsetWidth - 20;
-    var maxY = window.innerHeight - btn.offsetHeight - 20;
-    var randomX = Math.floor(Math.random() * maxX);
-    var randomY = Math.floor(Math.random() * maxY);
-    btn.style.position = 'fixed';
-    btn.style.left = randomX + 'px';
-    btn.style.top = randomY + 'px';
-    btn.style.zIndex = '9998';
-}
-
-// ===== :sparkling_heart: YES BUTTON =====
-function sayYes() {
-    document.querySelector('.response-buttons').style.display = 'none';
-    document.getElementById('noBtn').style.display = 'none';
-    document.getElementById('yay-message').style.display = 'block';
-    document.getElementById('yay-message').style.animation = 'fadeInUp 0.8s ease forwards';
-
-    startConfetti();
-
-    // Celebration hearts burst
-    for (var i = 0; i < 30; i++) {
-        (function (index) {
-            setTimeout(function () {
-                var heart = document.createElement('div');
-                heart.className = 'heart';
-                heart.textContent = [':heart:', ':blue_heart:', ':sparkling_heart:', ':two_hearts:', ':pleading_face:', ':sparkles:', ':heart_hands:'][Math.floor(Math.random() * 7)];
-                heart.style.left = Math.random() * 100 + 'vw';
-                heart.style.fontSize = (Math.random() * 2 + 2) + 'rem';
-                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
-                document.body.appendChild(heart);
-                setTimeout(function () { heart.remove(); }, 6000);
-            }, index * 100);
-        })(i);
-    }
-
-    // Show thanks section
-    setTimeout(function () {
-        document.getElementById('thanksSection').style.display = 'block';
-        document.getElementById('thanksSection').style.animation = 'fadeInUp 0.8s ease forwards';
-    }, 2000);
-
-    // Show message section
-    setTimeout(function () {
-        document.getElementById('messageSection').style.display = 'block';
-        document.getElementById('messageSection').style.animation = 'fadeInUp 0.8s ease forwards';
     }, 3000);
 }
 
-// ===== :love_letter: SEND THANKS =====
+// ===== SHOW LETTER AFTER VIDEO ENDS =====
+function showLetterAfterVideo() {
+    var videoSection = document.querySelector('.video-section');
+    var title = document.querySelector('.title');
+    var letterBox = document.querySelector('.letter-box');
+    var surpriseBtn = document.querySelector('.surprise-btn');
+
+    // Fade out video
+    videoSection.style.animation = 'fadeOutVideo 1s ease forwards';
+
+    setTimeout(function() {
+        // Hide video
+        videoSection.style.display = 'none';
+
+        // Show title
+        title.style.display = 'block';
+        title.style.opacity = '0';
+        title.style.animation = 'gradientShift 4s ease infinite, fadeInDown 1s ease 0.3s forwards';
+
+        // Show letter
+        letterBox.style.display = 'block';
+        letterBox.style.opacity = '0';
+        letterBox.style.animation = 'fadeInUp 1s ease 0.5s forwards';
+
+        // Reset letter text animations
+        document.querySelector('.greeting').style.animation = 'fadeInUp 0.8s ease 1s forwards';
+        document.getElementById('text1').style.animation = 'fadeInUp 0.8s ease 1.5s forwards';
+        document.getElementById('text2').style.animation = 'fadeInUp 0.8s ease 2.2s forwards';
+        document.getElementById('text3').style.animation = 'fadeInUp 0.8s ease 2.9s forwards';
+        document.getElementById('text4').style.animation = 'fadeInUp 0.8s ease 3.6s forwards';
+        document.getElementById('text5').style.animation = 'fadeInUp 0.8s ease 4.3s forwards';
+        document.querySelector('.signature').style.animation = 'fadeInUp 0.8s ease 5s forwards';
+
+        // Show surprise button
+        surpriseBtn.style.display = 'inline-block';
+        surpriseBtn.style.opacity = '0';
+        surpriseBtn.style.animation = 'fadeInUp 0.8s ease 5.5s forwards';
+
+        // Start floating hearts
+        startFloatingHearts();
+
+    }, 1000);
+}
+
+// ===== FLOATING HEARTS (Red & Blue Glittery) =====
+function startFloatingHearts() {
+    var container = document.getElementById('hearts-container');
+    var heartEmojis = ['❤️', '💙', '❤️', '💙', '❤️', '💙'];
+
+    setInterval(function() {
+        var heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.fontSize = (Math.random() * 1.5 + 0.8) + 'rem';
+        heart.style.animationDuration = (Math.random() * 5 + 6) + 's';
+        heart.style.filter = 'drop-shadow(0 0 6px rgba(255, 255, 255, 0.9))';
+        heart.style.textShadow = '0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff';
+
+        container.appendChild(heart);
+        setTimeout(function() { heart.remove(); }, 12000);
+    }, 400);
+}
+
+// ===== LAUNCH CAKE =====
+function launchCake() {
+    var cakeSection = document.getElementById('cake-section');
+    cakeSection.classList.remove('hidden');
+    cakeSection.style.animation = 'fadeInUp 0.8s ease forwards';
+    document.querySelector('.surprise-btn').style.display = 'none';
+
+    notifyMe('🎁 Clicked Surprise Button');
+
+    cakeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ===== BLOW CANDLES =====
+function blowCandles() {
+    var flames = document.querySelectorAll('.flame');
+    flames.forEach(function(flame, index) {
+        setTimeout(function() {
+            flame.classList.add('blown');
+        }, index * 300);
+    });
+
+    notifyMe('🌬️ Blew the Candles');
+
+    setTimeout(function() {
+        document.querySelector('.blow-btn').style.display = 'none';
+        document.querySelector('.wish-text').style.display = 'none';
+        var afterBlow = document.getElementById('after-blow');
+        afterBlow.classList.remove('hidden');
+        afterBlow.style.animation = 'fadeInUp 0.8s ease forwards';
+        launchConfetti();
+    }, 1200);
+}
+
+// ===== MOVE "NO" BUTTON =====
+function moveNoButton() {
+    var btn = document.getElementById('noBtn');
+    var x = Math.random() * (window.innerWidth - 150);
+    var y = Math.random() * (window.innerHeight - 60);
+    btn.style.position = 'fixed';
+    btn.style.left = x + 'px';
+    btn.style.top = y + 'px';
+    btn.style.zIndex = '1000';
+
+    notifyMe('😂 Tried to Click NO');
+}
+
+// ===== SAY YES =====
+function sayYes() {
+    document.querySelector('.response-buttons').style.display = 'none';
+    document.querySelector('.forgive-text').style.display = 'none';
+    var yayMessage = document.getElementById('yay-message');
+    yayMessage.classList.remove('hidden');
+    yayMessage.style.animation = 'fadeInUp 0.8s ease forwards';
+    launchConfetti();
+
+    notifyMe('💖 HE SAID YES! He forgives you!');
+
+    for (var i = 0; i < 30; i++) {
+        (function(index) {
+            setTimeout(function() {
+                var heart = document.createElement('div');
+                heart.classList.add('heart');
+                var emojis = ['❤️', '💙', '❤️', '💙', '🎉'];
+                heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.fontSize = '2rem';
+                heart.style.animationDuration = '4s';
+                heart.style.filter = 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.9))';
+                document.getElementById('hearts-container').appendChild(heart);
+            }, index * 100);
+        })(i);
+    }
+}
+
+// ===== 💌 SEND THANKS BUTTON =====
 function sendThanks() {
     var btn = document.getElementById('thanksBtn');
     btn.disabled = true;
     btn.classList.add('btn-loading');
-    btn.textContent = '';
+    btn.textContent = 'Sending...';
+
+    var formUrl = 'https://docs.google.com/forms/d/e/' + GOOGLE_FORM_ID + '/formResponse';
+
+    var now = new Date();
+    var time = now.toLocaleString('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+    });
 
     var formData = new FormData();
-    formData.append(thanksEntryId, 'Thanks and Love sent from Birthday Page! :sparkling_heart::birthday:');
+    formData.append(GOOGLE_ENTRY_ID, '💌 Sent Thank You! | Time: ' + time);
 
-    fetch(formURL, {
+    fetch(formUrl, {
         method: 'POST',
         mode: 'no-cors',
         body: formData
-    }).then(function () {
+    }).then(function() {
         btn.classList.remove('btn-loading');
-        btn.textContent = ':white_check_mark: Sent!';
-        document.getElementById('thanksConfirmation').style.display = 'block';
-        startConfetti();
-    }).catch(function () {
+        btn.textContent = '✅ Sent!';
+        btn.style.background = 'linear-gradient(135deg, #00b894, #00cec9)';
+        document.getElementById('thanks-sent').classList.remove('hidden');
+        launchConfetti();
+
+        // Show personal message section after 2 seconds
+        setTimeout(function() {
+            var msgSection = document.getElementById('personal-message-section');
+            msgSection.classList.remove('hidden');
+            msgSection.style.animation = 'fadeInUp 1s ease forwards';
+            msgSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 2000);
+
+    }).catch(function(err) {
         btn.classList.remove('btn-loading');
-        btn.textContent = ':white_check_mark: Sent!';
-        document.getElementById('thanksConfirmation').style.display = 'block';
+        btn.textContent = '❌ Failed, try again';
+        btn.disabled = false;
     });
 }
 
-// ===== :gift_heart: SEND PERSONAL MESSAGE =====
-function sendPersonalMessage() {
-    var message = document.getElementById('hisMessage').value.trim();
-    if (!message) {
-        alert('Please write something! :pleading_face:');
+// ===== 💬 SEND HIS PERSONAL MESSAGE =====
+function sendHisMessage() {
+    var messageBox = document.getElementById('hisMessage');
+    var btn = document.getElementById('sendMessageBtn');
+    var message = messageBox.value.trim();
+
+    if (message === '') {
+        messageBox.style.border = '2px solid #ff6b6b';
+        messageBox.setAttribute('placeholder', '💬 Please type something... I am waiting! 🥺');
         return;
     }
 
-    var btn = document.getElementById('sendMsgBtn');
     btn.disabled = true;
     btn.classList.add('btn-loading');
-    btn.textContent = '';
+    btn.textContent = 'Sending...';
+
+    var formUrl = 'https://docs.google.com/forms/d/e/' + GOOGLE_FORM_ID + '/formResponse';
+
+    var now = new Date();
+    var time = now.toLocaleString('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+    });
 
     var formData = new FormData();
-    formData.append(messageEntryId, 'Personal Message: ' + message);
+    formData.append(GOOGLE_ENTRY_ID, '💬 Sent a Personal Message | Time: ' + time);
+    formData.append(GOOGLE_MESSAGE_ENTRY_ID, message);
 
-    fetch(formURL, {
+    fetch(formUrl, {
         method: 'POST',
         mode: 'no-cors',
         body: formData
-    }).then(function () {
-        showMessageSuccess();
-    }).catch(function () {
-        showMessageSuccess();
+    }).then(function() {
+        btn.classList.remove('btn-loading');
+        btn.textContent = '✅ Sent!';
+        btn.style.background = 'linear-gradient(135deg, #00b894, #00cec9)';
+
+        document.getElementById('message-sent-confirmation').classList.remove('hidden');
+        messageBox.style.display = 'none';
+        document.querySelector('.char-count').style.display = 'none';
+
+        launchConfetti();
+        notifyMe('💬 HE SENT A PERSONAL MESSAGE! Check Google Forms! 💖');
+
+    }).catch(function(err) {
+        btn.classList.remove('btn-loading');
+        btn.textContent = '❌ Failed, try again';
+        btn.disabled = false;
     });
 }
 
-function showMessageSuccess() {
-    var btn = document.getElementById('sendMsgBtn');
-    btn.classList.remove('btn-loading');
-    btn.style.display = 'none';
-    document.getElementById('hisMessage').style.display = 'none';
-    document.querySelector('.char-count').style.display = 'none';
-    document.getElementById('msgConfirmation').style.display = 'block';
-    startConfetti();
-}
-
-// ===== :bar_chart: CHARACTER COUNTER =====
-function updateCharCount() {
-    var count = document.getElementById('hisMessage').value.length;
-    document.getElementById('charCount').textContent = count;
-}
-
-// ===== :loud_sound: MUSIC TOGGLE =====
-function toggleMusic() {
-    var bgMusic = document.getElementById('bgMusic');
-    var btn = document.getElementById('musicBtn');
-    if (musicPlaying) {
-        bgMusic.pause();
-        btn.textContent = ':mute:';
-        musicPlaying = false;
-    } else {
-        bgMusic.play().then(function () {
-            btn.textContent = ':loud_sound:';
-            musicPlaying = true;
-        }).catch(function (err) {
-            console.log('Music play failed:', err);
-        });
-    }
-}
-
-// ===== :confetti_ball: CONFETTI =====
-function startConfetti() {
+// ===== CONFETTI =====
+function launchConfetti() {
     var canvas = document.getElementById('confetti-canvas');
     var ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    var pieces = [];
-    var colors = ['#FF6B9D', '#FECA57', '#FF9FF3', '#54A0FF', '#5F27CD', '#01A3A4', '#FF6348', '#00D2D3', '#FF0044', '#4A90FF'];
+    var confettiPieces = [];
+    var colors = ['#ff6b9d', '#feca57', '#ff9ff3', '#00b894', '#74b9ff', '#a29bfe', '#fd79a8', '#00cec9'];
 
     for (var i = 0; i < 150; i++) {
-        pieces.push({
+        confettiPieces.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height - canvas.height,
-            w: Math.random() * 10 + 5,
-            h: Math.random() * 6 + 3,
+            w: Math.random() * 12 + 5,
+            h: Math.random() * 8 + 3,
             color: colors[Math.floor(Math.random() * colors.length)],
-            speed: Math.random() * 3 + 2,
+            speed: Math.random() * 4 + 2,
             angle: Math.random() * 360,
-            spin: Math.random() * 0.2 - 0.1,
+            spin: Math.random() * 10 - 5,
             drift: Math.random() * 2 - 1
         });
     }
 
-    var frames = 0;
-    function animate() {
+    var frameCount = 0;
+
+    function animateConfetti() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        pieces.forEach(function (p) {
+
+        confettiPieces.forEach(function(p) {
             ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.angle * Math.PI / 180);
+            ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+            ctx.rotate((p.angle * Math.PI) / 180);
             ctx.fillStyle = p.color;
             ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
             ctx.restore();
+
             p.y += p.speed;
             p.x += p.drift;
-            p.angle += p.spin * 10;
-            if (p.y > canvas.height) {
-                p.y = -10;
-                p.x = Math.random() * canvas.width;
-            }
+            p.angle += p.spin;
         });
-        frames++;
-        if (frames < 300) {
-            requestAnimationFrame(animate);
+
+        frameCount++;
+        if (frameCount < 300) {
+            requestAnimationFrame(animateConfetti);
         } else {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
     }
-    animate();
+
+    animateConfetti();
 }
 
-// ===== :iphone: HANDLE WINDOW RESIZE =====
-window.addEventListener('resize', function () {
-    var canvas = document.getElementById('confetti-canvas');
-    if (canvas) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+// ===== CHARACTER COUNTER =====
+document.addEventListener('DOMContentLoaded', function() {
+    var textarea = document.getElementById('hisMessage');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            var count = this.value.length;
+            document.getElementById('charCount').textContent = count;
+
+            var counter = document.getElementById('charCount');
+            if (count > 450) {
+                counter.style.color = '#ff6b6b';
+            } else if (count > 350) {
+                counter.style.color = '#feca57';
+            } else {
+                counter.style.color = 'rgba(255, 255, 255, 0.4)';
+            }
+        });
     }
+});
+
+// ===== WINDOW RESIZE =====
+window.addEventListener('resize', function() {
+    var canvas = document.getElementById('confetti-canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 });
