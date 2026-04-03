@@ -161,12 +161,12 @@ function playVideoFirst() {
     // Check if video can play
     if (video.readyState >= 3) {
         // Already loaded enough
-        tryPlayVideo();
+        tryplayVideo();
     } else {
         // Wait for enough data to load
         video.addEventListener('canplay', function onCanPlay() {
             video.removeEventListener('canplay', onCanPlay);
-            tryPlayVideo();
+            tryplayVideo();
         });
     }
 
