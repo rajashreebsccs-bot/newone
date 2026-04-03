@@ -881,3 +881,6 @@ body {
         clip-path: path('M 110 16 C 90 -8, 37 -8, 22 30 C 4 72, 38 118, 110 180 C 182 118, 216 72, 198 30 C 183 -8, 130 -8, 110 16 Z');
     }
 }
+video::-webkit-media-controls {
+opacity: 0.8;
+}
