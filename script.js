@@ -187,8 +187,7 @@ function playVideoFirst() {
 function showTapToPlay() {
     var video = document.getElementById('ourVideo');
     var bgMusic = document.getElementById('bgMusic');
-    var videoWrapper = document.querySelector('.video-wrapper');
-
+    var videoWrapper = document.querySelector('.heart-video-container');
     // Create tap overlay
     var overlay = document.createElement('div');
     overlay.id = 'tapOverlay';
