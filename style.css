@@ -750,25 +750,7 @@ body {
     transform: scale(1.15);
     background: rgba(255, 255, 255, 0.25);
 }
-/* ===== VIDEO TAP OVERLAY FIX ===== */
-.heart-video-container {
-    position: relative;
-}
 
-#tapOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 5;
-    border-radius: 20px;
-}
 @keyframes musicPulse {
     0%, 100% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); }
     50% { box-shadow: 0 0 20px rgba(255, 107, 157, 0.4); }
@@ -880,7 +862,4 @@ body {
     .heart-video-mask {
         clip-path: path('M 110 16 C 90 -8, 37 -8, 22 30 C 4 72, 38 118, 110 180 C 182 118, 216 72, 198 30 C 183 -8, 130 -8, 110 16 Z');
     }
-}
-video::-webkit-media-controls {
-opacity: 0.8;
 }
