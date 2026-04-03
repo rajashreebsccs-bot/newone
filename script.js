@@ -138,7 +138,7 @@ function playVideoFirst() {
     bgMusic.volume = 0.5;
 
     // Try to play both together
-    function tryplayVideo() {
+    function tryPlayVideo() {
       video.play().then(function() {
         console.log('Video playing!');
 
@@ -161,12 +161,12 @@ function playVideoFirst() {
     // Check if video can play
     if (video.readyState >= 3) {
         // Already loaded enough
-        tryplayVideo();
+        tryPlayVideo();
     } else {
         // Wait for enough data to load
         video.addEventListener('canplay', function onCanPlay() {
             video.removeEventListener('canplay', onCanPlay);
-            tryplayVideo();
+            tryPlayVideo();
         });
     }
 
