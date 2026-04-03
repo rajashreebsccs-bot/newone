@@ -2,317 +2,233 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Happy Birthday Ammu! :birthday::sparkling_heart:</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday! 🎂</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<!-- ===== :musical_note: BACKGROUND MUSIC ===== -->
-<audio id="bgMusic" loop preload="auto">
-    <source src="song.mp3" type="audio/mpeg">
-</audio>
-
-<!-- ===== :loud_sound: MUSIC TOGGLE BUTTON ===== -->
-<button id="musicBtn" onclick="toggleMusic()" style="position:fixed;top:15px;right:15px;z-index:9999;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,0.25);color:#fff;width:50px;height:50px;border-radius:50%;font-size:1.4rem;cursor:pointer;">:mute:</button>
-
-<!-- ===== :confetti_ball: CONFETTI CANVAS ===== -->
-<canvas id="confetti-canvas"></canvas>
-
-<!-- ========================================= -->
-<!-- ===== SCREEN 1: ENVELOPE ===== -->
-<!-- ========================================= -->
-<div class="screen active" id="screen1">
-    <div class="envelope" onclick="openEnvelope()" style="cursor: pointer;">
-        <div class="envelope-top"></div>
-        <div class="envelope-body">
-            <p>:love_letter: Tap to Open</p>
+    <!-- LANDING SCREEN -->
+    <div id="landing" class="screen active">
+        <div class="envelope" id="envelope" onclick="openEnvelope()">
+            <div class="envelope-top"></div>
+            <div class="envelope-body">
+                <p>💌 Tap to Open</p>
+            </div>
         </div>
     </div>
-    <p style="margin-top:25px;color:rgba(255,255,255,0.5);font-size:0.9rem;animation:pulse 2s infinite;">Tap the envelope :sparkling_heart:</p>
-</div>
 
-<!-- ========================================= -->
-<!-- ===== SCREEN 2: MAIN CONTENT ===== -->
-<!-- ========================================= -->
-<div class="screen" id="screen2">
-    <div class="content-wrapper">
+    <!-- MESSAGE SCREEN -->
+    <div id="message-screen" class="screen">
+        <div class="floating-hearts" id="hearts-container"></div>
+        
+        <div class="content-wrapper">
 
-        <!-- :sparkling_heart::blue_heart: HEART VIDEO FRAME -->
-        <div class="video-section" id="videoArea">
-            <!-- Loading spinner while video buffers -->
-            <div id="videoLoader" class="video-loader">
-                <div class="loader-heart">:sparkling_heart:</div>
-                <p class="loader-text">Loading your surprise...</p>
-            </div>
-            <div class="heart-glow"></div>
-            <div class="heart-video-wrapper">
-                <!-- Mini hearts & emojis around the frame -->
-                <span class="mini-heart">:heart:</span>
-                <span class="mini-heart">:blue_heart:</span>
-                <span class="mini-heart">:two_hearts:</span>
-                <span class="mini-heart">:pleading_face:</span>
-                <span class="mini-heart">:heart:</span>
-                <span class="mini-heart">:blue_heart:</span>
-                <span class="mini-heart">:sparkles:</span>
-                <span class="mini-heart">:butterfly:</span>
-                <span class="mini-heart">:sparkling_heart:</span>
-                <span class="mini-heart">:blue_heart:</span>
-                <span class="mini-heart">:heart:</span>
-                <span class="mini-heart">:two_hearts:</span>
+            <!-- ✨ VIDEO INSIDE HEART SHAPE -->
+            <div class="video-section">
+                <p class="video-top-text">For You, My Love 💕</p>
 
-                <!-- Video inside heart shape -->
-                <video id="ourVideo" class="our-video" muted playsinline webkit-playsinline preload="auto">
-                    <source src="ourvideo.mp4" type="video/mp4">
-                </video>
-            </div>
-            <div class="video-caption">
-                <p class="video-caption-text">Our Beautiful Moments :sparkling_heart:</p>
-            </div>
-        </div>
-
-        <!-- ===== TITLE ===== -->
-        <h1 class="title" id="mainTitle" style="display:none;">Happy Birthday My Ammu! :birthday::sparkles:</h1>
-
-        <!-- ===== LETTER ===== -->
-        <div class="letter-box" id="letterBox" style="display:none;">
-            <p class="greeting">Dear Ammu :sparkling_heart:,</p>
-            <p class="letter-text" id="text1">Happy Birthday da! :tada: Inniki un special day, and I just want you to know how much you mean to me. Every moment with you feels like a beautiful dream that I never want to wake up from. :pleading_face::two_hearts:</p>
-            <p class="letter-text" id="text2">You are my sunshine :sunny:, my happiness :blush:, my everything :dizzy:. The way you make me laugh, the way you care for me, the way you love me — it's everything I ever wished for. :rainbow::sparkles:</p>
-            <p class="letter-text" id="text3">I know sometimes I make mistakes, sometimes I make you upset :pensive:. But please know that my love for you is real and it grows stronger every single day. You are the best thing that ever happened to me. :sparkling_heart::butterfly:</p>
-            <p class="letter-text" id="text4">On your special day, I wish you all the happiness in the world :earth_africa::gift_heart:. May all your dreams come true, may you always keep smiling, and may we create a million more beautiful memories together. :smiling_face_with_3_hearts::birthday:</p>
-            <p class="letter-text" id="text5">Thank you for being YOU. Thank you for being my person. Thank you for everything. I love you more than words can ever express. :two_hearts::heart_hands:</p>
-            <div class="signature">
-                <p>With all my love,</p>
-                <span class="my-name">Rajashree :heart:</span>
-            </div>
-        </div>
-
-        <!-- ===== SURPRISE BUTTON ===== -->
-        <button class="surprise-btn" id="surpriseBtn" style="display:none;" onclick="showSurprise()">:birthday: Blow the Candles! :birthday:</button>
-
-        <!-- ===== CAKE SECTION ===== -->
-        <div id="cakeSection" style="display:none;">
-            <div class="cake">
-                <div class="candle-row">
-                    <div class="candle"><div class="flame" id="flame1"></div></div>
-                    <div class="candle"><div class="flame" id="flame2"></div></div>
-                    <div class="candle"><div class="flame" id="flame3"></div></div>
-                    <div class="candle"><div class="flame" id="flame4"></div></div>
-                    <div class="candle"><div class="flame" id="flame5"></div></div>
+                <div class="heart-video-container">
+                    <!-- Animated Red & Blue Heart Border -->
+                    <div class="heart-border"></div>
+                    <!-- Heart Shaped Video -->
+                    <div class="heart-video-mask">
+                        <video 
+                            id="ourVideo" 
+                            class="our-video" 
+                            muted
+                            playsinline
+                            preload="auto"
+                        >
+                            <source src="ourvideo.mp4" type="video/mp4">
+                        </video>
+                    </div>
                 </div>
-                <div class="cake-top"></div>
-                <div class="cake-middle"></div>
-                <div class="cake-bottom"></div>
-            </div>
-            <p class="wish-text">:birthday: Make a wish & blow the candles! :birthday:</p>
-            <button class="blow-btn" onclick="blowCandles()">:wind_blowing_face: Blow!</button>
-        </div>
 
-        <!-- ===== FORGIVE SECTION ===== -->
-        <div id="forgiveSection" style="display:none;">
-            <h2 class="final-wish">One Last Thing... :pleading_face:</h2>
-            <p class="forgive-text">Will you forgive me for all my mistakes? :pleading_face::sparkling_heart:</p>
-            <div class="response-buttons">
-                <button class="yes-btn" onclick="sayYes()">Yes, I Forgive You :sparkling_heart:</button>
-                <button class="no-btn" id="noBtn" onmouseover="moveNoBtn()" ontouchstart="moveNoBtn()">No :triumph:</button>
-            </div>
-            <div id="yay-message" style="display:none;">
-                <h2>Yayyy! :partying_face::sparkling_heart::tada:</h2>
-                <p>I promise to make you the happiest person ever! :pleading_face::two_hearts:</p>
-            </div>
-        </div>
+                <div class="video-caption">
+                    <p class="video-caption-text">I miss these moments... I miss us 💔</p>
+                </div>
 
-        <!-- ===== SEND THANKS SECTION ===== -->
-        <div id="thanksSection" style="display:none;">
-            <button class="thanks-btn" id="thanksBtn" onclick="sendThanks()">
-                :love_letter: Send Thanks & Love :sparkling_heart:
+                <!-- Mini floating hearts around the video -->
+                <div class="mini-heart mh1">❤️</div>
+                <div class="mini-heart mh2">💙</div>
+                <div class="mini-heart mh3">❤️</div>
+                <div class="mini-heart mh4">💙</div>
+                <div class="mini-heart mh5">❤️</div>
+                <div class="mini-heart mh6">💙</div>
+                 <div class="mini-heart mh1">❤️</div>
+                <div class="mini-heart mh2">💙</div>
+                <div class="mini-heart mh2">💙</div>
+                <div class="mini-heart mh5">❤️</div>
+
+
+            </div>
+            <!-- End Video Section -->
+
+            <h1 class="title">Happy Birthday My Love! 🎂</h1>
+            
+            <div class="letter-box">
+                <p class="greeting">Happyy Birthday My Dear Ammu,</p>
+                
+                <p class="letter-text" id="text1">
+                    Even nee enkita pesulanalum its okay! You might think that if you stop talking to me, i'll eventually forget you💙❤️!
+                    But Reality is i still think about you every day💙❤️🥺just like before, ALWAYSSSSS, 
+                    and I'm really sorry for everything in case una hurt paniruthal!. 💔
+                </p>
+                
+                <p class="letter-text" id="text2">
+                    But today is YOUR special day, and I couldn't let it 
+                    pass without telling you how much you mean to me. 🌟💙❤️
+                </p>
+                
+                <p class="letter-text" id="text3">
+                    I dont just miss you as my love💙❤️..
+                    i miss you in every role you played in my life💙❤️
+                    as my guide💙❤️, my support💙❤️, my backbone💙❤️ and my AMMU. 💕💙❤️
+                </p>
+
+                <p class="letter-text" id="text4">
+                    I miss your smile. I miss your voice. 
+                    I miss us.Can we start fresh? 
+                    Enkita pesuviya oru friend mari achum?🥺
+                </p>
+
+                <p class="letter-text" id="text5">
+                    No matter what happens, I want you to know — 
+                    you are loved more than words can ever say.<br>
+
+                  And in the end, i just want to say this, i hope you are always Happy.💙❤️
+                  i hope everything you wish for comes true.💙❤️ Stay postive, Keep moving forward,
+                  and keep being the wonderful person you are👑
+
+                    
+                </p>
+
+                <p class="signature">
+                    Forever yours,<br>
+                    <span class="my-name"> Unnaval❤️</span>
+                </p>
+            </div>
+
+            <button class="surprise-btn" onclick="launchCake()">
+                🎁 Tap for a Surprise!
             </button>
-            <div id="thanksConfirmation" style="display:none;" class="thanks-confirmation">
-                :white_check_mark: Your love has been received! :sparkling_heart:
-            </div>
-        </div>
 
-        <!-- ===== PERSONAL MESSAGE SECTION ===== -->
-        <div id="messageSection" style="display:none;">
-            <div class="message-divider">── :sparkles: ──</div>
-            <div class="message-box-wrapper">
-                <h3 class="message-prompt">Write Something For Me? :pleading_face::love_letter:</h3>
-                <p class="message-subtext">Your words mean the world to me... write anything you feel :two_hearts:</p>
-                <textarea class="his-message-input" id="hisMessage" rows="4" maxlength="500" placeholder="Type your heart out... :sparkling_heart:" oninput="updateCharCount()"></textarea>
-                <p class="char-count"><span id="charCount">0</span>/500</p>
-                <button class="send-message-btn" id="sendMsgBtn" onclick="sendPersonalMessage()">:gift_heart: Send Your Message :gift_heart:</button>
-                <div id="msgConfirmation" style="display:none;">
-                    <div class="sent-heart-animation">:sparkling_heart:</div>
-                    <p class="message-received-text">Message Received! :love_letter::sparkles:</p>
-                    <p class="message-received-subtext">Thank you Ammu... I'll treasure this forever :pleading_face::two_hearts:</p>
+            <!-- CAKE SECTION -->
+            <div id="cake-section" class="hidden">
+                <div class="cake">
+                    <div class="candle-row">
+                        <div class="candle"><div class="flame"></div></div>
+                        <div class="candle"><div class="flame"></div></div>
+                        <div class="candle"><div class="flame"></div></div>
+                    </div>
+                    <div class="cake-top"></div>
+                    <div class="cake-middle"></div>
+                    <div class="cake-bottom"></div>
+                </div>
+                <p class="wish-text">Make a wish & blow the candles! 🌬️</p>
+                <button class="blow-btn" onclick="blowCandles()">🌬️ Blow!</button>
+                
+                <div id="after-blow" class="hidden">
+                    <h2 class="final-wish">🎉 Happy Birthday, Ammuveyy! 🎉</h2>
+                    <p class="forgive-text">Will you forgive me? 🥹</p>
+                    <div class="response-buttons">
+                        <button class="yes-btn" onclick="sayYes()">Yes! 💖</button>
+                        <button class="no-btn" id="noBtn" onmouseover="moveNoButton()" ontouchstart="moveNoButton()">No 😤</button>
+                    </div>
+                    
+                    <div id="yay-message" class="hidden">
+                        <h2>YAYYY! 🥳🎊💕</h2>
+                        <p>I promise to make it up to you! Let's make this year the best one yet! 💙❤️</p>
+                        
+                        <button class="thanks-btn" id="thanksBtn" onclick="sendThanks()">
+                            💌 Send Her a Thank You
+                        </button>
+                        <div id="thanks-sent" class="hidden">
+                            <p class="thanks-confirmation">✅ Your message has been sent! She knows now 💖</p>
+                        </div>
+
+                        <div id="personal-message-section" class="hidden">
+                            <div class="message-divider">
+                                <span>─────────── ✨ ───────────</span>
+                            </div>
+                            
+                            <div class="message-box-wrapper">
+                                <p class="message-prompt">
+                                    Anything you want to tell me? 💭
+                                </p>
+                                <p class="message-subtext">
+                                    Please feel free to convey me... 
+                                    I've been waiting for your single message for a very long time... 🥺💖
+                                </p>
+                                
+                                <textarea 
+                                    id="hisMessage" 
+                                    class="his-message-input" 
+                                    placeholder="Type your heart out here... 💬"
+                                    rows="4"
+                                    maxlength="500"
+                                ></textarea>
+                                
+                                <p class="char-count">
+                                    <span id="charCount">0</span>/500 characters
+                                </p>
+                                
+                                <button class="send-message-btn" id="sendMessageBtn" onclick="sendHisMessage()">
+                                    💌 Send Message to Her
+                                </button>
+                                
+                                <div id="message-sent-confirmation" class="hidden">
+                                    <div class="sent-heart-animation">💖</div>
+                                    <p class="message-received-text">
+                                        ✅ Your message reached her! 💕
+                                    </p>
+                                    <p class="message-received-subtext">
+                                        She's probably smiling right now... 😊🥹
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
+
         </div>
-
     </div>
-    </div>
-<!-- ===== INLINE JAVASCRIPT FOR ENVELOPE CLICK (EMERGENCY BACKUP) ===== -->
-<script>
-// Emergency backup function in case external script.js doesn't load
-function openEnvelope() {
-    console.log('Envelope clicked!');
-    var envelope = document.querySelector('.envelope');
-    if (envelope) {
-        envelope.classList.add('opened');
-        setTimeout(function () {
-            document.getElementById('screen1').classList.remove('active');
-            document.getElementById('screen2').classList.add('active');
-            // Start floating hearts if function exists
-            if (typeof startFloatingHearts === 'function') {
-                startFloatingHearts();
-            }
-            // Start video if function exists
-            if (typeof playVideoFirst === 'function') {
-                playVideoFirst();
-            }
-        }, 800);
-    } else {
-        console.log('Envelope element not found!');
-    }
-}
 
-// Backup functions in case script.js doesn't load
-function showSurprise() {
-    document.getElementById('surpriseBtn').style.display = 'none';
-    document.getElementById('cakeSection').style.display = 'block';
-}
+    <!-- CONFETTI CANVAS -->
+    <canvas id="confetti-canvas"></canvas>
 
-function blowCandles() {
-    for (var i = 1; i <= 5; i++) {
-        (function (index) {
-            setTimeout(function () {
-                var flame = document.getElementById('flame' + index);
-                if (flame) flame.classList.add('blown');
-            }, index * 200);
-        })(i);
-    }
+    <!-- 🎵 BACKGROUND MUSIC -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
 
-    setTimeout(function () {
-        var wishText = document.querySelector('.wish-text');
-        if (wishText) wishText.textContent = ':tada: Happy Birthday Ammu! :tada:';
-        var blowBtn = document.querySelector('.blow-btn');
-        if (blowBtn) blowBtn.style.display = 'none';
+    <!-- 🔊 MUSIC CONTROL BUTTON -->
+    <button id="musicBtn" onclick="toggleMusic()" style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    ">
+        🔇
+    </button>
 
-        setTimeout(function () {
-            document.getElementById('cakeSection').style.display = 'none';
-            document.getElementById('forgiveSection').style.display = 'block';
-        }, 2500);
-    }, 1500);
-}
-
-function moveNoBtn() {
-    var btn = document.getElementById('noBtn');
-    if (btn) {
-        var maxX = window.innerWidth - btn.offsetWidth - 20;
-        var maxY = window.innerHeight - btn.offsetHeight - 20;
-        var randomX = Math.floor(Math.random() * maxX);
-        var randomY = Math.floor(Math.random() * maxY);
-        btn.style.position = 'fixed';
-        btn.style.left = randomX + 'px';
-        btn.style.top = randomY + 'px';
-        btn.style.zIndex = '9998';
-    }
-}
-
-function sayYes() {
-    var responseButtons = document.querySelector('.response-buttons');
-    if (responseButtons) responseButtons.style.display = 'none';
-    var noBtn = document.getElementById('noBtn');
-    if (noBtn) noBtn.style.display = 'none';
-    var yayMessage = document.getElementById('yay-message');
-    if (yayMessage) {
-        yayMessage.style.display = 'block';
-        yayMessage.style.animation = 'fadeInUp 0.8s ease forwards';
-    }
-
-    setTimeout(function () {
-        var thanksSection = document.getElementById('thanksSection');
-        if (thanksSection) {
-            thanksSection.style.display = 'block';
-            thanksSection.style.animation = 'fadeInUp 0.8s ease forwards';
-        }
-    }, 2000);
-
-    setTimeout(function () {
-        var messageSection = document.getElementById('messageSection');
-        if (messageSection) {
-            messageSection.style.display = 'block';
-            messageSection.style.animation = 'fadeInUp 0.8s ease forwards';
-        }
-    }, 3000);
-}
-
-function sendThanks() {
-    var btn = document.getElementById('thanksBtn');
-    if (btn) {
-        btn.disabled = true;
-        btn.textContent = ':white_check_mark: Sent!';
-        var confirmation = document.getElementById('thanksConfirmation');
-        if (confirmation) confirmation.style.display = 'block';
-    }
-}
-
-function sendPersonalMessage() {
-    var message = document.getElementById('hisMessage').value.trim();
-    if (!message) {
-        alert('Please write something! :pleading_face:');
-        return;
-    }
-
-    var btn = document.getElementById('sendMsgBtn');
-    if (btn) btn.style.display = 'none';
-    var input = document.getElementById('hisMessage');
-    if (input) input.style.display = 'none';
-    var charCount = document.querySelector('.char-count');
-    if (charCount) charCount.style.display = 'none';
-    var confirmation = document.getElementById('msgConfirmation');
-    if (confirmation) confirmation.style.display = 'block';
-}
-
-function updateCharCount() {
-    var count = document.getElementById('hisMessage').value.length;
-    var charCountSpan = document.getElementById('charCount');
-    if (charCountSpan) charCountSpan.textContent = count;
-}
-
-function toggleMusic() {
-    var bgMusic = document.getElementById('bgMusic');
-    var btn = document.getElementById('musicBtn');
-    if (bgMusic && btn) {
-        if (bgMusic.paused) {
-            bgMusic.play().then(function () {
-                btn.textContent = ':loud_sound:';
-            }).catch(function () {
-                console.log('Music play failed');
-            });
-        } else {
-            bgMusic.pause();
-            btn.textContent = ':mute:';
-        }
-    }
-}
-
-// Test function to verify JavaScript is working
-function testJS() {
-    console.log('JavaScript is working!');
-    alert('JavaScript is working! :white_check_mark:');
-}
-
-// Auto-test on page load
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Page loaded, JavaScript ready!');
-});
-</script>
-
-<!-- ===== LOAD EXTERNAL SCRIPT (IF AVAILABLE) ===== -->
-<script src="script.js"></script>
-
+    <script src="script.js"></script>
 </body>
 </html>
